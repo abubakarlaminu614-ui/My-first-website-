@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J.I.S Smart Shop v1.8</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f4f7f5;color:#17231b}
+button,input,select{font:inherit}button{cursor:pointer;border:0}
+.app{max-width:650px;margin:auto;min-height:100vh}
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(145deg,#08733e,#063b24)}
+.login-box{width:100%;background:#fff;border-radius:25px;padding:28px 22px;text-align:center;box-shadow:0 15px 40px #0004}
+.logo{width:70px;height:70px;border-radius:20px;background:#08733e;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:32px}
+.login-box p{color:#777;margin:8px 0 18px}
+.input{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin-bottom:10px;outline:none;background:#fff}
+.input:focus{border-color:#08733e}
+.primary,.form-btn{background:#08733e;color:#fff;padding:13px;width:100%;border-radius:12px;font-weight:bold}
+.secondary{background:#e8f3ed;color:#08733e;padding:12px;width:100%;border-radius:12px;font-weight:bold;margin-top:8px}
+.error{color:#d22;margin-top:10px;display:none}
+#mainApp{display:none}
+header{background:#08733e;color:#fff;padding:17px;position:sticky;top:0;z-index:10}
+.header-row{display:flex;align-items:center;justify-content:space-between}
+.lock-btn{background:#ffffff22;color:#fff;padding:9px 12px;border-radius:10px}
+.content{padding:15px;padding-bottom:90px}
+.section{display:none}.section.active{display:block}
+.section-title{margin:8px 0 15px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card,.form-card{background:#fff;border-radius:16px;padding:15px;box-shadow:0 3px 12px #0000000c}
+.form-card{margin-bottom:15px}
+.card small{color:#777}.card h2{margin-top:8px}.sales{color:#08733e}.debt{color:#c62828}
+label{display:block;margin:10px 0 6px;font-weight:bold;font-size:14px}
+.search{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin-bottom:12px}
+.item{background:#fff;padding:15px;border-radius:15px;margin-bottom:10px;box-shadow:0 2px 8px #0000000a}
+.item-top{display:flex;justify-content:space-between;gap:10px}.item h3{margin-bottom:5px}
+.item p{color:#666;font-size:13px;margin:4px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+.small-btn{padding:9px 12px;border-radius:9px;background:#edf2ef}
+.delete{background:#ffe7e7;color:#b40000}.pay{background:#e5f7ed;color:#08733e}.call{background:#e5f0ff;color:#075bb5}
+.cart{margin-top:15px}.cart-item{border:1px solid #e4e4e4;border-radius:13px;padding:12px;margin-bottom:9px;background:#fafafa}
+.cart-head{display:flex;justify-content:space-between;gap:10px}.qty-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.qty-btn{width:32px;height:32px;border-radius:8px;background:#08733e;color:#fff;font-weight:bold}
+.remove-btn{background:#ffe7e7;color:#b40000;padding:7px 9px;border-radius:8px}
+.total-box{background:#f0f8f3;border-radius:14px;padding:15px;margin-top:12px}
+.total-line{display:flex;justify-content:space-between;margin:7px 0}.big-total{font-size:21px;font-weight:bold}
+.customer-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #eee;gap:10px}
+.customer-row:last-child{border-bottom:0}.customer-info{display:flex;align-items:center;flex:1}
+.rank{width:32px;height:32px;min-width:32px;border-radius:50%;background:#e6f4eb;display:flex;align-items:center;justify-content:center;font-weight:bold;margin-right:10px}
+.customer-name{font-weight:bold}.customer-phone{color:#777;font-size:12px;margin-top:3px}.amount{color:#c62828;font-weight:bold}
+.nav{position:fixed;bottom:0;left:0;right:0;max-width:650px;margin:auto;background:#fff;display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 -3px 15px #0002;z-index:20}
+.nav button{background:#fff;padding:9px 2px;color:#777;font-size:11px}.nav button.active{color:#08733e;font-weight:bold}.nav-icon{display:block;font-size:19px;margin-bottom:3px}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:50}
+.modal-box{width:100%;max-width:650px;max-height:92vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;padding:20px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.close{width:35px;height:35px;border-radius:50%;background:#eee}
+.empty{text-align:center;padding:28px;color:#888}.history-row{padding:11px 0;border-bottom:1px solid #eee}
+.history-row:last-child{border-bottom:0}.low{color:#c62828;font-weight:bold}.ok{color:#08733e;font-weight:bold}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.stat{background:#f7faf8;padding:12px;border-radius:12px}.stat b{display:block;font-size:18px;margin-top:5px}
+
+.customer-hero{background:linear-gradient(135deg,#08733e,#0b9b58);color:#fff;border-radius:20px;padding:18px;box-shadow:0 10px 24px rgba(8,115,62,.18);position:relative;overflow:hidden}
+.customer-hero:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-55px;top:-65px;background:rgba(255,255,255,.10)}
+.customer-avatar{width:54px;height:54px;border-radius:16px;background:#fff;color:#08733e;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin-bottom:10px}
+.customer-hero-name{font-size:23px;font-weight:800;margin:0}.customer-hero-phone{opacity:.9;font-size:13px;margin-top:4px}
+.customer-debt-label{font-size:12px;opacity:.85;margin-top:16px}.customer-debt-value{font-size:29px;font-weight:900;margin-top:2px}
+.customer-live{display:inline-flex;align-items:center;gap:6px;margin-top:9px;background:rgba(255,255,255,.16);padding:7px 10px;border-radius:10px;font-size:12px;font-weight:800}
+.customer-date{font-size:11px;opacity:.82;margin-top:7px}
+.customer-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:13px 0}
+.customer-actions button{border:0;border-radius:12px;padding:11px 7px;font-weight:800;font-size:12px;background:#f1f6f3;color:#08733e}
+.customer-actions .danger{background:#fff0ef;color:#b42318}
+.customer-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.customer-stat{background:#f7faf8;border:1px solid #e6eee9;border-radius:13px;padding:11px 8px;text-align:center}
+.customer-stat span{display:block;font-size:11px;color:#7a847f}.customer-stat b{display:block;font-size:17px;margin-top:4px}
+.statement-title{display:flex;justify-content:space-between;align-items:center;margin:15px 0 9px}
+.statement-title h3{margin:0;font-size:17px}.statement-badge{font-size:11px;background:#fff5e3;color:#9a6700;border-radius:999px;padding:6px 9px;font-weight:800}
+.smart-history{background:#fff;border:1px solid #e7ece9;border-radius:15px;padding:13px;margin-bottom:9px;box-shadow:0 4px 14px rgba(0,0,0,.04)}
+.smart-history-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.smart-history-date{font-size:12px;font-weight:800}.smart-history-time{font-size:11px;color:#7b8580;margin-top:3px}
+.smart-history-total{font-size:16px;font-weight:900}.smart-history-items{margin-top:9px;border-top:1px dashed #dfe6e2;padding-top:7px;font-size:12px;color:#555}
+.smart-history-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}
+.smart-history-bottom div{background:#f7faf8;border-radius:9px;padding:7px}.smart-history-bottom span{display:block;font-size:10px;color:#7b8580}.smart-history-bottom b{font-size:12px}
+.statement-footer{text-align:center;background:#f7faf8;border-radius:15px;padding:13px;margin-top:12px;color:#6d7772;font-size:11px}
+@media(max-width:390px){.customer-actions{grid-template-columns:1fr 1fr}.customer-stats{grid-template-columns:1fr 1fr 1fr}.smart-history-bottom{grid-template-columns:1fr}}
+
+
+/* v1.6 quick-credit / continue-shopping UI */
+.quick-credit{background:linear-gradient(135deg,#f2fbf6,#ffffff);border:1px solid #dcebe2;border-radius:16px;padding:13px;margin:12px 0}
+.quick-credit h3{margin:0 0 5px;font-size:15px;color:#08733e}.quick-credit p{font-size:12px;color:#6d7772;margin:0 0 10px}
+.quick-credit-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+.quick-credit-row select{min-width:0}.continue-bar{display:none;background:#eaf8f0;border:1px solid #cdebd8;color:#08733e;border-radius:14px;padding:11px;margin:10px 0;font-size:12px}
+.continue-bar b{display:block;font-size:14px;margin-bottom:3px}
+.continue-bar .continue-actions{display:flex;gap:7px;margin-top:8px}.continue-actions button{border:0;border-radius:10px;padding:9px 11px;font-weight:800}
+.continue-actions .primary{background:#08733e;color:#fff}.continue-actions .light{background:#fff;color:#08733e;border:1px solid #cdebd8}
+.cloud-card{background:linear-gradient(135deg,#10231a,#08733e);color:#fff;border-radius:18px;padding:16px;margin-bottom:12px}
+.cloud-card h3{margin:0 0 5px}.cloud-card p{font-size:12px;opacity:.88;line-height:1.5;margin:0}
+.cloud-status{display:flex;align-items:center;gap:7px;margin-top:11px;font-size:12px;font-weight:800}
+.cloud-dot{width:8px;height:8px;border-radius:50%;background:#f5c542;box-shadow:0 0 0 4px rgba(245,197,66,.12)}
+.cloud-note{background:#fff8e8;color:#7a5a10;border:1px solid #f0dfad;border-radius:12px;padding:11px;font-size:12px;line-height:1.5;margin-top:10px}
+.account-id-box{background:#f7faf8;border:1px dashed #cfdcd4;border-radius:12px;padding:11px;font-size:12px}
+.account-id-box b{display:block;color:#08733e;font-size:14px;margin-top:3px;word-break:break-all}
+@media(max-width:390px){.quick-credit-row{grid-template-columns:1fr}.continue-actions{flex-wrap:wrap}}
+
+.receipt{background:#fff;border:1px solid #e8ecea;padding:0;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.08);font-family:Arial,sans-serif}
+.receipt-top{background:linear-gradient(135deg,#08733e,#0b9b58);color:#fff;padding:22px 18px;text-align:center}
+.receipt-logo{width:52px;height:52px;margin:0 auto 9px;border-radius:16px;background:#fff;color:#08733e;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:800}
+.receipt-top h2{font-size:21px;margin:0 0 4px}.receipt-top p{font-size:12px;opacity:.9;margin:0}
+.receipt-status{display:inline-block;margin-top:12px;background:rgba(255,255,255,.18);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700}
+.receipt-body{padding:17px}.receipt-section{margin-bottom:15px}.receipt-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#8a938e;font-weight:700;margin-bottom:8px}
+.receipt-info{background:#f7faf8;border-radius:12px;padding:11px 12px}.receipt-line{display:flex;justify-content:space-between;gap:12px;margin:7px 0;font-size:13px}.receipt-line span:first-child{color:#737b77}.receipt-line b{color:#17231b;text-align:right}
+.receipt-items{border-top:1px dashed #d6ddd9;border-bottom:1px dashed #d6ddd9;padding:8px 0}.receipt-item{display:flex;justify-content:space-between;gap:10px;padding:8px 0;font-size:13px}.receipt-item-name{flex:1}.receipt-item-qty{color:#777;white-space:nowrap}.receipt-total{background:#f1f8f4;border-radius:14px;padding:13px;margin-top:12px}.receipt-total .grand{font-size:19px}.receipt-debt{background:#fff6f5;border:1px solid #ffd9d5;color:#b42318;border-radius:12px;padding:11px;margin-top:10px}
+.receipt-foot{text-align:center;padding:0 17px 18px;color:#7b8580;font-size:11px}.receipt-foot strong{color:#08733e}
+.receipt-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.receipt-actions button{padding:12px;border-radius:12px;font-weight:700}
+.receipt-actions .print-btn{background:#08733e;color:#fff}.receipt-actions .share-btn{background:#eef6f1;color:#08733e}
+.receipt-age{font-size:12px;font-weight:700;color:#9a6700;background:#fff8e8;padding:7px 9px;border-radius:9px;display:inline-block;margin-top:7px}
+@media print{body>*:not(#receiptModal){display:none!important}#receiptModal{display:block!important;position:static;background:#fff}.modal-box{box-shadow:none!important;max-width:430px!important;margin:auto}.modal-head,.receipt-actions{display:none!important}.receipt{box-shadow:none!important;border:0!important}}
+.bar-wrap{margin-top:12px}.bar-label{display:flex;justify-content:space-between;font-size:12px;margin:7px 0 3px}
+.bar{height:9px;background:#e4eee8;border-radius:10px;overflow:hidden}.bar>i{display:block;height:100%;background:#08733e;border-radius:10px}
+.debt-age{display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:7px 9px;border-radius:10px;background:#fff4f4;color:#b42318;font-size:12px;font-weight:bold}.debt-age.live{background:#fff8e8;color:#9a6700}.debt-meta{font-size:12px;color:#777;margin-top:5px}
+@media(max-width:390px){.cards{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+<div class="login-box">
+<div class="logo">🛒</div>
+<h1>J.I.S Smart Shop</h1>
+<p>Create your shop account or login.</p>
+<input id="loginUser" class="input" placeholder="Username">
+<input id="loginPin" class="input" type="password" maxlength="6" inputmode="numeric" placeholder="PIN">
+<button class="primary" onclick="login()">🔐 Login</button>
+<button class="secondary" onclick="showCreateAccount()">➕ Create Account</button>
+<div id="loginError" class="error"></div>
+<p style="font-size:12px;margin-top:14px">First account can use any username + PIN 1234.</p>
+</div>
+</div>
+
+<div id="mainApp" class="app">
+<header><div class="header-row"><h2>🛒 J.I.S Smart Shop v1.8</h2><button class="lock-btn" onclick="lockApp()">🔒</button></div></header>
+<div class="content">
+
+<section id="dashboard" class="section active">
+<h2 class="section-title">Dashboard</h2>
+<div class="cards">
+<div class="card"><small>Total Sales</small><h2 class="sales" id="totalSales">₦0</h2></div>
+<div class="card"><small>Total Debt</small><h2 class="debt" id="totalDebt">₦0</h2></div>
+<div class="card"><small>Customers</small><h2 id="totalCustomers">0</h2></div>
+<div class="card"><small>Products</small><h2 id="totalProducts">0</h2></div>
+</div>
+<div class="form-card" style="margin-top:15px">
+<h3>🔥 Debt Trending</h3><p style="font-size:13px;color:#777;margin:6px 0 10px">Masu bin shago mafi yawa</p><div id="topDebtors"></div>
+</div>
+<div class="form-card"><h3>📊 Reports</h3>
+<div class="stat-row">
+<div class="stat">Today Sales<b id="todaySales">₦0</b></div>
+<div class="stat">This Month<b id="monthSales">₦0</b></div>
+<div class="stat">Profit<b id="totalProfit">₦0</b></div>
+<div class="stat">Low Stock<b id="lowStock">0</b></div>
+</div>
+<div class="bar-wrap" id="debtBars"></div>
+</div>
+</section>
+
+<section id="products" class="section">
+<h2 class="section-title">📦 Shop Products</h2>
+<div class="form-card">
+<label>Product Name</label><input id="productName" class="input" placeholder="Misali: Rice 50kg">
+<label>Category</label><input id="productCategory" class="input" placeholder="Food">
+<label>Buying Price (₦)</label><input id="productBuyPrice" class="input" type="number" placeholder="0">
+<label>Selling Price (₦)</label><input id="productPrice" class="input" type="number" placeholder="0">
+<label>Stock Quantity</label><input id="productStock" class="input" type="number" placeholder="0">
+<button class="form-btn" onclick="addProduct()">➕ Add Product</button>
+</div>
+<input id="productSearch" class="search" placeholder="🔎 Search product..." oninput="renderProducts()">
+<div id="productList"></div>
+</section>
+
+<section id="salesSection" class="section">
+<h2 class="section-title">🧾 New Sale</h2>
+<div class="form-card">
+<label>Customer Name</label><input id="saleCustomer" class="input" placeholder="Sunan customer">
+<label>Phone Number</label><input id="salePhone" class="input" type="tel" placeholder="08012345678">
+
+
+
+<div class="quick-credit" style="display:block">
+  <b>🧾 Saka kaya ɗaya bayan ɗaya</b><br>
+  <span style="font-size:12px;color:#6d7772">Rubuta sunan kaya, farashi da quantity, danna Add, sannan ka sake rubuta wani kaya.</span>
+</div>
+
+<label>Abin da aka karɓa</label>
+<input id="saleItemName" class="input" placeholder="Misali: Rice">
+
+<label>Farashin kaya</label>
+<input id="saleItemPrice" class="input" type="number" min="0" step="0.01" placeholder="Misali: 500">
+
+<label>Quantity</label>
+<input id="saleQuantity" class="input" type="number" min="1" value="1">
+
+<button class="form-btn" type="button" onclick="addCustomItem()">➕ Add</button>
+
+<div class="cart"><h3>🛒 Items Customer Ya Ɗauka</h3><div id="cartList" style="margin-top:10px"></div>
+<div class="total-box"><div class="total-line"><span>Total</span><b id="cartTotal">₦0</b></div>
+<label>Amount Paid</label><input id="salePaid" class="input" type="number" placeholder="0" oninput="calculateDebt()">
+<div class="total-line"><span>Remaining Debt</span><b id="cartDebt" class="debt">₦0</b></div></div>
+<button class="form-btn" style="margin-top:12px" onclick="saveSale()">💾 Save Complete Sale</button>
+</div></div>
+</section>
+
+<section id="customers" class="section">
+<h2 class="section-title">👥 Customers & Debt</h2>
+<input id="customerSearch" class="search" placeholder="🔎 Search customer..." oninput="renderCustomers()">
+<div id="customerList"></div>
+</section>
+
+<section id="history" class="section">
+<h2 class="section-title">📜 Sales History</h2>
+<input id="salesSearch" class="search" placeholder="🔎 Search customer/product..." oninput="renderSalesHistory()">
+<div id="salesHistoryList"></div>
+</section>
+
+<section id="settings" class="section">
+<h2 class="section-title">⚙️ Settings</h2>
+<div class="cloud-card">
+  <h3>☁️ J.I.S Smart Cloud</h3>
+  <p>Za mu haɗa wannan account da Supabase domin ka iya login daga wata waya ka dawo da bayanan shagon.</p>
+  <div class="cloud-status"><span class="cloud-dot"></span> Cloud connection: Ready to connect</div>
+</div>
+<div class="account-id-box">
+  <span>Local Account ID</span>
+  <b id="localAccountId"></b>
+</div>
+<div class="cloud-note">
+  🔐 <b>Important:</b> A wannan v1.6, bayanan wayar suna nan a local kamar v1.5. Mataki na gaba zai haɗa wannan account da Supabase. Bayan haɗin ya kammala, login daga wata waya zai dawo da products, customers, sales da debts.
+</div>
+<div class="form-card">
+<h3>🔐 Change PIN</h3>
+<label>Current PIN</label><input id="oldPin" class="input" type="password" maxlength="6" inputmode="numeric">
+<label>New PIN</label><input id="newPin" class="input" type="password" maxlength="6" inputmode="numeric">
+<button class="form-btn" onclick="changePin()">🔐 Change PIN</button>
+</div>
+<div class="form-card">
+<h3>💾 Backup & Restore</h3>
+<p style="color:#777;margin:8px 0;font-size:13px">Export bayanan wannan account zuwa file, ko dawo da shi daga backup file.</p>
+<button class="form-btn" onclick="exportData()">📤 Export Backup</button>
+<input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)">
+<button class="secondary" onclick="document.getElementById('importFile').click()">📥 Import Backup</button>
+</div>
+<div class="form-card">
+<h3>🧾 Smart Receipt</h3><p style="color:#777;margin:8px 0;font-size:13px">Latest receipt zaka iya dubawa ko share shi.</p>
+<button class="form-btn" onclick="showLatestReceipt()">👁️ Latest Receipt</button>
+<button class="secondary" onclick="shareLatestReceipt()">📤 Share Latest Receipt</button>
+</div>
+<div class="form-card">
+<h3>🗑️ Data Management</h3>
+<button class="form-btn" style="background:#c62828" onclick="clearAllData()">⚠️ Delete This Account Data</button>
+</div>
+</section>
+
+</div>
+
+<nav class="nav">
+<button class="active" onclick="showSection('dashboard',this)"><span class="nav-icon">🏠</span>Home</button>
+<button onclick="showSection('products',this)"><span class="nav-icon">📦</span>Products</button>
+<button onclick="showSection('salesSection',this)"><span class="nav-icon">🧾</span>Sale</button>
+<button onclick="showSection('customers',this)"><span class="nav-icon">👥</span>Debt</button>
+<button onclick="showSection('settings',this)"><span class="nav-icon">⚙️</span>More</button>
+</nav>
+</div>
+
+<div id="paymentModal" class="modal"><div class="modal-box">
+<div class="modal-head"><h3>💳 Record Payment</h3><button class="close" onclick="closeModal()">✕</button></div>
+<div id="paymentCustomer"></div><input id="paymentAmount" class="input" type="number" placeholder="Amount paid" style="margin-top:15px">
+<button class="form-btn" onclick="recordPayment()">💰 Save Payment</button>
+</div></div>
+
+<div id="historyModal" class="modal"><div class="modal-box">
+<div class="modal-head"><h3>👤 Customer Details</h3><button class="close" onclick="closeHistory()">✕</button></div>
+<div id="historyContent"></div>
+</div></div>
+
+<div id="receiptModal" class="modal"><div class="modal-box">
+<div class="modal-head"><h3>🧾 Receipt</h3><button class="close" onclick="closeReceipt()">✕</button></div>
+<div id="receiptContent"></div>
+<div class="receipt-actions"><button class="print-btn" onclick="window.print()">🖨️ Print</button><button class="share-btn" onclick="shareLatestReceipt()">📤 Share Receipt</button></div>
+</div></div>
+
+<script>
+let accounts=JSON.parse(localStorage.getItem("shop_accounts_v12")||"{}");
+let currentUser=localStorage.getItem("shop_current_user_v12")||"";
+let products=[],sales=[],customers=[],cart=[],pin="",selectedCustomerId=null;
+
+function key(type){return "shop12_"+currentUser+"_"+type}
+function loadUser(){
+ products=JSON.parse(localStorage.getItem(key("products"))||"[]");
+ sales=JSON.parse(localStorage.getItem(key("sales"))||"[]");
+ customers=JSON.parse(localStorage.getItem(key("customers"))||"[]");
+ pin=accounts[currentUser]||"";
+}
+function saveData(){
+ localStorage.setItem(key("products"),JSON.stringify(products));
+ localStorage.setItem(key("sales"),JSON.stringify(sales));
+ localStorage.setItem(key("customers"),JSON.stringify(customers));
+}
+function showError(t){let e=document.getElementById("loginError");e.textContent=t;e.style.display="block"}
+function showCreateAccount(){
+ const u=prompt("Create username:");
+ if(u===null)return;
+ const username=u.trim();
+ if(!username){showError("Username is required.");return}
+ if(accounts[username]){showError("Username already exists.");return}
+ const p=prompt("Create 4-6 digit PIN:");
+ if(p===null)return;
+ if(!/^\d{4,6}$/.test(p)){showError("PIN must be 4-6 numbers.");return}
+ accounts[username]=p;localStorage.setItem("shop_accounts_v12",JSON.stringify(accounts));
+ alert("Account created. Login yanzu.");
+ document.getElementById("loginUser").value=username;
+ document.getElementById("loginPin").value=p;
+}
+function login(){
+ const u=document.getElementById("loginUser").value.trim();
+ const p=document.getElementById("loginPin").value;
+ if(!u){showError("Enter username.");return}
+ if(!accounts[u]){
+   if(p==="1234"){
+     accounts[u]="1234";localStorage.setItem("shop_accounts_v12",JSON.stringify(accounts));
+   }else{showError("Account ba ya nan. Create Account ko amfani da PIN 1234 wajen account na farko.");return}
+ }
+ if(accounts[u]!==p){showError("Wrong PIN.");return}
+ currentUser=u;localStorage.setItem("shop_current_user_v12",u);loadUser();
+ document.getElementById("loginScreen").style.display="none";
+ document.getElementById("mainApp").style.display="block";
+ updateAll();
+}
+function lockApp(){
+ document.getElementById("mainApp").style.display="none";
+ document.getElementById("loginScreen").style.display="flex";
+ document.getElementById("loginPin").value="";
+}
+function showSection(id,btn){
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");updateAll();
+}
+function addProduct(){
+ const name=document.getElementById("productName").value.trim(),cat=document.getElementById("productCategory").value.trim();
+ const buy=Number(document.getElementById("productBuyPrice").value),price=Number(document.getElementById("productPrice").value),stock=Number(document.getElementById("productStock").value);
+ if(!name||buy<0||price<=0||stock<0){alert("Cika sunan kaya, buying price, selling price da stock.");return}
+ products.push({id:Date.now(),name,category:cat||"General",buyPrice:buy,price,stock});
+ saveData();["productName","productCategory","productBuyPrice","productPrice","productStock"].forEach(id=>document.getElementById(id).value="");
+ updateAll();alert("An saka kaya.");
+}
+function renderProducts(){
+ const list=document.getElementById("productList"),search=document.getElementById("productSearch").value.toLowerCase();
+ const arr=products.filter(p=>p.name.toLowerCase().includes(search));
+ if(!arr.length){list.innerHTML='<div class="empty">Babu kayan da aka samu.</div>';return}
+ list.innerHTML=arr.map(p=>`<div class="item"><div class="item-top"><div><h3>${esc(p.name)}</h3><p>Category: ${esc(p.category)}</p><p>Buying: ₦${money(p.buyPrice)} | Selling: <b>₦${money(p.price)}</b></p><p>Stock: <b class="${p.stock<=5?'low':'ok'}">${p.stock}</b>${p.stock<=5?' ⚠️ Low Stock':''}</p></div><div style="font-size:30px">📦</div></div><div class="actions"><button class="small-btn" onclick="editProduct(${p.id})">✏️ Edit</button><button class="small-btn delete" onclick="deleteProduct(${p.id})">🗑️ Delete</button></div></div>`).join("");
+}
+function editProduct(id){
+ const p=products.find(x=>x.id===id);if(!p)return;
+ const name=prompt("Product name:",p.name);if(name===null)return;
+ const buy=Number(prompt("Buying price:",p.buyPrice)),price=Number(prompt("Selling price:",p.price)),stock=Number(prompt("Stock:",p.stock));
+ if(!name||buy<0||price<=0||stock<0){alert("Invalid information.");return}
+ p.name=name;p.buyPrice=buy;p.price=price;p.stock=stock;saveData();updateAll();
+}
+function deleteProduct(id){if(!confirm("Delete this product?"))return;products=products.filter(p=>p.id!==id);saveData();updateAll()}
+
+
+
+
+
+
+
+function updateLocalAccountId(){
+ const el=document.getElementById("localAccountId");
+ if(el)el.textContent=`${currentUser}@jis-smart-shop`;
+}
+
+function addToCart(){addCustomItem()}
+function renderCart(){
+ const el=document.getElementById("cartList");
+ if(!el)return;
+ if(!cart.length){el.innerHTML='<div class="empty">Babu kaya da aka ƙara tukuna.</div>';document.getElementById("cartTotal").textContent="₦0";return}
+ el.innerHTML=cart.map((i,idx)=>`
+ <div class="cart-item">
+   <div style="flex:1"><b>${esc(i.name)}</b><div style="font-size:12px;color:#777;margin-top:3px">₦${money(i.price)} × ${i.quantity}</div></div>
+   <strong>₦${money(i.price*i.quantity)}</strong>
+   <button class="remove-btn" onclick="removeFromCart(${idx})">✖</button>
+ </div>`).join("");
+ const total=cart.reduce((sum,i)=>sum+(Number(i.price)*Number(i.quantity)),0);
+ document.getElementById("cartTotal").textContent="₦"+money(total);
+ calculateDebt();
+}
+function removeFromCart(idx){cart.splice(idx,1);renderCart();}
+function changeCartQty(n,c){const i=cart[n],p=products.find(x=>x.id===i.productId);if(!p)return;const q=i.quantity+c;if(q<=0){cart.splice(n,1);renderCart();return}if(q>p.stock){alert("Stock bai isa ba.");return}i.quantity=q;renderCart()}
+function removeFromCart(n){cart.splice(n,1);renderCart()}
+function getCartTotal(){return cart.reduce((s,i)=>s+i.price*i.quantity,0)}
+function calculateDebt(){const total=getCartTotal(),paid=Number(document.getElementById("salePaid").value)||0;document.getElementById("cartDebt").textContent="₦"+money(Math.max(total-paid,0))}
+function formatDebtAge(ms){
+ const sec=Math.max(0,Math.floor(ms/1000));
+ const days=Math.floor(sec/86400);
+ const hours=Math.floor((sec%86400)/3600);
+ const mins=Math.floor((sec%3600)/60);
+ const secs=sec%60;
+ return `${days}d ${String(hours).padStart(2,"0")}h ${String(mins).padStart(2,"0")}m ${String(secs).padStart(2,"0")}s`;
+}
+function debtAgeText(date){return formatDebtAge(Date.now()-new Date(date).getTime())}
+function oldestDebtSale(customerName){
+ const arr=sales.filter(s=>s.customerName.toLowerCase()===customerName.toLowerCase()&&Number(s.debt)>0);
+ return arr.sort((a,b)=>new Date(a.date)-new Date(b.date))[0]||null;
+}
+function updateDebtAges(){
+ document.querySelectorAll('[data-debt-date]').forEach(el=>{
+   el.textContent='⏱️ Bashin ya kai: '+debtAgeText(el.dataset.debtDate);
+ });
+ document.querySelectorAll('[data-debt-id]').forEach(el=>{
+   const s=sales.find(x=>String(x.id)===String(el.dataset.debtId));
+   if(s&&Number(s.debt)>0) el.textContent='⏱️ Bashin ya kai: '+debtAgeText(s.date);
+ });
+}
+function startDebtClock(){updateDebtAges();setInterval(updateDebtAges,1000)}
+function addCustomItem(){
+ const name=document.getElementById("saleItemName").value.trim();
+ const price=Number(document.getElementById("saleItemPrice").value);
+ const quantity=Math.max(1,Number(document.getElementById("saleQuantity").value)||1);
+ if(!name){alert("Rubuta sunan kayan tukuna.");document.getElementById("saleItemName").focus();return}
+ if(!Number.isFinite(price)||price<0){alert("Rubuta farashin kayan daidai.");document.getElementById("saleItemPrice").focus();return}
+ cart.push({productId:null,name,price,quantity});
+ document.getElementById("saleItemName").value="";
+ document.getElementById("saleItemPrice").value="";
+ document.getElementById("saleQuantity").value=1;
+ renderCart();
+ calculateDebt();
+ document.getElementById("saleItemName").focus();
+}
+function saveSale(){
+ const customerName=document.getElementById("saleCustomer").value.trim();
+ const phone=document.getElementById("salePhone").value.trim();
+ const paid=Number(document.getElementById("salePaid").value)||0;
+ if(!customerName)return alert("Rubuta sunan customer.");
+ if(!cart.length)return alert("Ka ƙara aƙalla kaya ɗaya.");
+ const total=cart.reduce((sum,i)=>sum+(Number(i.price)*Number(i.quantity)),0);
+ if(paid<0)return alert("Adadin da aka biya bai dace ba.");
+ if(paid>total)return alert("Amount paid ya fi total.");
+ const debt=total-paid;
+ let c=customers.find(x=>x.name.toLowerCase()===customerName.toLowerCase());
+ if(!c){
+   c={id:Date.now(),name:customerName,phone,totalDebt:0,totalPaid:0,transactions:0,purchases:0};
+   customers.push(c);
+ }
+ c.phone=phone||c.phone||"";
+ c.totalDebt=(Number(c.totalDebt)||0)+debt;
+ c.totalPaid=(Number(c.totalPaid)||0)+paid;
+ c.transactions=(Number(c.transactions)||0)+1;
+ c.purchases=(Number(c.purchases)||0)+cart.reduce((n,i)=>n+Number(i.quantity),0);
+
+ const sale={
+   id:Date.now(),
+   customerId:c.id,
+   customerName:c.name,
+   phone:c.phone,
+   items:cart.map(i=>({productId:null,name:i.name,price:Number(i.price),quantity:Number(i.quantity)})),
+   total,paid,debt,
+   date:new Date().toISOString()
+ };
+ sales.unshift(sale);
+ saveData();
+ cart=[];
+ document.getElementById("salePaid").value="0";
+ document.getElementById("saleItemName").value="";
+ document.getElementById("saleItemPrice").value="";
+ document.getElementById("saleQuantity").value=1;
+ renderCart();
+ updateAll();
+ showReceipt(sale);
+}
+function renderCustomers(){
+ const list=document.getElementById("customerList"),q=document.getElementById("customerSearch").value.toLowerCase(),arr=customers.filter(c=>c.name.toLowerCase().includes(q));
+ if(!arr.length){list.innerHTML='<div class="empty">Babu customer.</div>';return}
+ list.innerHTML=arr.map(c=>{const oldest=oldestDebtSale(c.name);return `<div class="item"><div class="item-top"><div><h3>${esc(c.name)}</h3><p>📞 ${esc(c.phone||"No phone")}</p><p>🛒 Items: ${c.purchases} | 🧾 Transactions: ${c.transactions||0}</p>${oldest?`<div class="debt-age" data-debt-date="${oldest.date}">⏱️ Bashin ya kai: ${debtAgeText(oldest.date)}</div><div class="debt-meta">📅 An fara bashin: ${new Date(oldest.date).toLocaleString()}</div>`:""}</div><div style="text-align:right"><small>Total Debt</small><h3 class="amount">₦${money(c.totalDebt)}</h3></div></div><div class="actions">${c.phone?`<button class="small-btn call" onclick="callCustomer('${encodeURIComponent(c.phone)}')">📞 Call</button>`:""}${c.totalDebt>0?`<button class="small-btn pay" onclick="openPayment(${c.id})">💳 Pay Debt</button>`:`<button class="small-btn">✅ No Debt</button>`}<button class="small-btn" onclick="viewCustomer(${c.id})">👁️ Details</button>${c.totalDebt>0?`<button class="small-btn" onclick="remindCustomer(${c.id})">🔔 Remind</button>`:""}</div></div>`}).join("");
+}
+
+function callCustomer(p){window.location.href="tel:"+decodeURIComponent(p)}
+function remindCustomer(id){const c=customers.find(x=>x.id===id);if(!c)return;const msg=`Sannu ${c.name}, muna tunatar da kai cewa bashinka a shago ya rage ₦${money(c.totalDebt)}. Na gode.`;if(navigator.share)navigator.share({text:msg}).catch(()=>{});else if(c.phone)window.location.href="https://wa.me/"+normalizePhone(c.phone)+"?text="+encodeURIComponent(msg);else alert(msg)}
+function normalizePhone(p){p=p.replace(/\D/g,"");if(p.startsWith("0"))p="234"+p.slice(1);return p}
+function viewCustomer(id){
+ const c=customers.find(x=>x.id===id);
+ if(!c)return;
+ const arr=sales.filter(s=>s.customerName.toLowerCase()===c.name.toLowerCase()).sort((a,b)=>new Date(b.date)-new Date(a.date));
+ const oldest=oldestDebtSale(c.name);
+ const initials=(c.name||"C").trim().charAt(0).toUpperCase();
+ const debtCount=arr.filter(s=>Number(s.debt)>0).length;
+ const lastSale=arr[0]||null;
+
+ let h=`
+ <div class="customer-hero">
+   <div class="customer-avatar">${esc(initials)}</div>
+   <div class="customer-hero-name">${esc(c.name)}</div>
+   <div class="customer-hero-phone">📞 ${esc(c.phone||"No phone")}</div>
+   <div class="customer-debt-label">TOTAL DEBT</div>
+   <div class="customer-debt-value">₦${money(c.totalDebt)}</div>
+   ${oldest && Number(c.totalDebt)>0 ? `<div class="customer-live" data-detail-debt="${oldest.date}">⏱️ Bashin ya kai: ${debtAgeText(oldest.date)}</div><div class="customer-date">📅 An fara bashin: ${new Date(oldest.date).toLocaleString()}</div>` : `<div class="customer-live">✓ Babu bashi</div>`}
+ </div>
+
+ <div class="customer-actions">
+   ${c.phone?`<button onclick="callCustomer('${encodeURIComponent(c.phone)}')">📞 Call</button>`:"<button disabled>📞 Call</button>"}
+   ${c.totalDebt>0?`<button onclick="openPayment(${c.id})">💳 Pay Debt</button>`:`<button>✅ Paid</button>`}
+   <button onclick="shareCustomerStatement(${c.id})">📤 Share</button>
+ </div>
+
+ <div class="customer-stats">
+   <div class="customer-stat"><span>💰 Paid</span><b>₦${money(c.totalPaid)}</b></div>
+   <div class="customer-stat"><span>🧾 Sales</span><b>${c.transactions||0}</b></div>
+   <div class="customer-stat"><span>📦 Items</span><b>${c.purchases||0}</b></div>
+ </div>
+
+ <div class="statement-title">
+   <h3>🧾 Purchase History</h3>
+   <span class="statement-badge">${debtCount} debt ${debtCount===1?"record":"records"}</span>
+ </div>`;
+
+ if(!arr.length){
+   h+='<div class="empty">No history.</div>';
+ }else{
+   arr.forEach(s=>{
+     const d=new Date(s.date);
+     h+=`
+     <div class="smart-history">
+       <div class="smart-history-head">
+         <div>
+           <div class="smart-history-date">📅 ${d.toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"})}</div>
+           <div class="smart-history-time">⏰ ${d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})}</div>
+         </div>
+         <div class="smart-history-total">₦${money(s.total)}</div>
+       </div>
+       ${Number(s.debt)>0?`<div class="debt-age" data-detail-sale="${s.id}">⏱️ Bashin ya kai: ${debtAgeText(s.date)}</div>`:"<div class=\"debt-age live\" style=\"color:#08733e;background:#eef9f2\">✓ An biya</div>"}
+       <div class="smart-history-items">${s.items.map(i=>`• ${esc(i.name)} × ${i.quantity} = ₦${money(i.price*i.quantity)}`).join("<br>")}</div>
+       <div class="smart-history-bottom">
+         <div><span>Total</span><b>₦${money(s.total)}</b></div>
+         <div><span>Paid</span><b>₦${money(s.paid)}</b></div>
+         <div><span>Debt</span><b class="${Number(s.debt)>0?"debt":"ok"}">₦${money(s.debt)}</b></div>
+       </div>
+     </div>`;
+   });
+ }
+
+ h+=`
+ <div class="statement-footer">
+   <b>J.I.S SMART SHOP</b><br>
+   Customer statement • Last sale: ${lastSale?new Date(lastSale.date).toLocaleString():"-"}<br>
+   ${c.totalDebt>0?"💡 Ana iya biyan bashin a hankali; timer yana nuna tsawon lokacin bashin.":"✓ Wannan customer ba shi da outstanding debt."}
+ </div>`;
+
+ document.getElementById("historyContent").innerHTML=h;
+ document.getElementById("historyModal").style.display="flex";
+ if(window.customerDetailTimer)clearInterval(window.customerDetailTimer);
+ window.customerDetailTimer=setInterval(()=>{
+   document.querySelectorAll("[data-detail-debt]").forEach(el=>el.textContent="⏱️ Bashin ya kai: "+debtAgeText(el.dataset.detailDebt));
+   document.querySelectorAll("[data-detail-sale]").forEach(el=>{
+     const s=sales.find(x=>String(x.id)===String(el.dataset.detailSale));
+     if(s&&Number(s.debt)>0)el.textContent="⏱️ Bashin ya kai: "+debtAgeText(s.date);
+   });
+ },1000);
+}
+function shareCustomerStatement(id){
+ const c=customers.find(x=>x.id===id);
+ if(!c)return;
+ const oldest=oldestDebtSale(c.name);
+ const age=oldest?debtAgeText(oldest.date):"0d 00h 00m 00s";
+ const text=`J.I.S SMART SHOP
+Customer: ${c.name}
+Phone: ${c.phone||"-"}
+Total paid: ₦${money(c.totalPaid)}
+Outstanding debt: ₦${money(c.totalDebt)}
+Debt age: ${age}`;
+ if(navigator.share)navigator.share({title:"J.I.S Smart Shop - Customer Statement",text}).catch(()=>{});
+ else navigator.clipboard?.writeText(text).then(()=>alert("An kwafi statement.")).catch(()=>alert(text));
+}
+function closeHistory(){document.getElementById("historyModal").style.display="none";if(window.customerDetailTimer)clearInterval(window.customerDetailTimer)}
+function openPayment(id){const c=customers.find(x=>x.id===id);if(!c)return;selectedCustomerId=id;document.getElementById("paymentCustomer").innerHTML=`<b>${esc(c.name)}</b><p style="margin-top:7px">Current debt: <span class="debt">₦${money(c.totalDebt)}</span></p>`;document.getElementById("paymentAmount").value="";document.getElementById("paymentModal").style.display="flex"}
+function closeModal(){document.getElementById("paymentModal").style.display="none"}
+function recordPayment(){const a=Number(document.getElementById("paymentAmount").value),c=customers.find(x=>x.id===selectedCustomerId);if(!c||a<=0){alert("Saka amount daidai.");return}if(a>c.totalDebt){alert("Payment ya wuce bashin.");return}c.totalDebt-=a;c.totalPaid+=a;saveData();closeModal();updateAll();alert("An karɓi payment. Remaining: ₦"+money(c.totalDebt))}
+function updateDashboard(){
+ const totalSales=sales.reduce((s,x)=>s+x.total,0),totalPaid=sales.reduce((s,x)=>s+x.paid,0),totalDebt=customers.reduce((s,c)=>s+c.totalDebt,0),stock=products.reduce((s,p)=>s+p.stock,0),credit=sales.filter(s=>s.debt>0).length;
+ document.getElementById("totalSales").textContent="₦"+money(totalSales);document.getElementById("totalPaid").textContent="₦"+money(totalPaid);document.getElementById("totalDebt").textContent="₦"+money(totalDebt);document.getElementById("totalCustomers").textContent=customers.length;document.getElementById("totalProducts").textContent=products.length;document.getElementById("stockCount")&&(document.getElementById("stockCount").textContent=stock);document.getElementById("creditSales")&&(document.getElementById("creditSales").textContent=credit);
+ const now=new Date(),today=sales.filter(s=>{let d=new Date(s.date);return d.toDateString()===now.toDateString()}).reduce((a,s)=>a+s.total,0),month=sales.filter(s=>{let d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}).reduce((a,s)=>a+s.total,0);
+ const profit=sales.reduce((a,s)=>a+s.items.reduce((z,i)=>z+(i.price-(i.buyPrice||0))*i.quantity,0),0);
+ document.getElementById("todaySales").textContent="₦"+money(today);document.getElementById("monthSales").textContent="₦"+money(month);document.getElementById("totalProfit").textContent="₦"+money(profit);document.getElementById("lowStock").textContent=products.filter(p=>p.stock<=5).length;
+ renderTopDebtors();renderDebtBars();
+}
+function renderTopDebtors(){const c=document.getElementById("topDebtors"),arr=[...customers].filter(x=>x.totalDebt>0).sort((a,b)=>b.totalDebt-a.totalDebt).slice(0,5);if(!arr.length){c.innerHTML='<div class="empty">Babu wanda yake bin shago.</div>';return}c.innerHTML=arr.map((x,i)=>`<div class="customer-row"><div class="customer-info"><div class="rank">${i+1}</div><div><div class="customer-name">${esc(x.name)}</div><div class="customer-phone">${esc(x.phone||"No phone")}</div></div></div><div class="amount">₦${money(x.totalDebt)}</div></div>`).join("")}
+function renderDebtBars(){const box=document.getElementById("debtBars"),arr=[...customers].filter(c=>c.totalDebt>0).sort((a,b)=>b.totalDebt-a.totalDebt).slice(0,5);if(!arr.length){box.innerHTML="";return}const max=arr[0].totalDebt;box.innerHTML="<b>Debt chart</b>"+arr.map(c=>`<div class="bar-label"><span>${esc(c.name)}</span><span>₦${money(c.totalDebt)}</span></div><div class="bar"><i style="width:${Math.max(5,c.totalDebt/max*100)}%"></i></div>`).join("")}
+function renderSalesHistory(){const list=document.getElementById("salesHistoryList"),q=document.getElementById("salesSearch").value.toLowerCase();const arr=[...sales].reverse().filter(s=>s.customerName.toLowerCase().includes(q)||s.items.some(i=>i.name.toLowerCase().includes(q)));if(!arr.length){list.innerHTML='<div class="empty">Babu sales.</div>';return}list.innerHTML=arr.map(s=>`<div class="item"><div class="item-top"><div><h3>${esc(s.customerName)}</h3><p>📅 ${new Date(s.date).toLocaleString()}</p>${Number(s.debt)>0?`<div class="debt-age" data-debt-id="${s.id}">⏱️ Bashin ya kai: ${debtAgeText(s.date)}</div>`:""}<p>${s.items.map(i=>esc(i.name)+" × "+i.quantity).join(", ")}</p></div><div style="text-align:right"><b>₦${money(s.total)}</b><p>Paid ₦${money(s.paid)}</p><p class="debt">Debt ₦${money(s.debt)}</p></div></div><div class="actions"><button class="small-btn" onclick="showReceiptById(${s.id})">🧾 Receipt</button></div></div>`).join("")}
+function makeReceipt(s){
+ const date = new Date(s.date);
+ const dateText = date.toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"});
+ const timeText = date.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+ const items = s.items.map(i=>`
+   <div class="receipt-item">
+     <span class="receipt-item-name">${esc(i.name)}</span>
+     <span class="receipt-item-qty">× ${i.quantity}</span>
+     <b>₦${money(i.price*i.quantity)}</b>
+   </div>`).join("");
+ const debtBlock = Number(s.debt)>0 ? `
+   <div class="receipt-debt">
+     <div style="font-weight:800;margin-bottom:5px">💳 Bashi</div>
+     <div class="receipt-line"><span>Balance</span><b style="color:#b42318">₦${money(s.debt)}</b></div>
+     <div class="receipt-line"><span>Debt started</span><span>${dateText} • ${timeText}</span></div>
+     <div class="receipt-age" id="receiptAge_${s.id}">⏱️ ${debtAgeText(s.date)}</div>
+   </div>` : `
+   <div style="margin-top:10px;padding:10px;border-radius:12px;background:#eef9f2;color:#08733e;text-align:center;font-weight:700;font-size:13px">
+     ✓ An biya cikakke
+   </div>`;
+
+ return `
+ <div class="receipt">
+   <div class="receipt-top">
+     <div class="receipt-logo">🛒</div>
+     <h2>J.I.S SMART SHOP</h2>
+     <p>SALES RECEIPT</p>
+     <span class="receipt-status">✓ Transaction successful</span>
+   </div>
+   <div class="receipt-body">
+     <div class="receipt-section">
+       <div class="receipt-section-title">Customer</div>
+       <div class="receipt-info">
+         <div class="receipt-line"><span>Name</span><b>${esc(s.customerName)}</b></div>
+         <div class="receipt-line"><span>Phone</span><span>${esc(s.phone||"-")}</span></div>
+         <div class="receipt-line"><span>Date</span><span>${dateText}</span></div>
+         <div class="receipt-line"><span>Time</span><span>${timeText}</span></div>
+       </div>
+     </div>
+
+     <div class="receipt-section">
+       <div class="receipt-section-title">Items</div>
+       <div class="receipt-items">${items}</div>
+     </div>
+
+     <div class="receipt-total">
+       <div class="receipt-line"><span>Total</span><b class="grand">₦${money(s.total)}</b></div>
+       <div class="receipt-line"><span>Paid</span><b>₦${money(s.paid)}</b></div>
+       <div class="receipt-line"><span>Balance</span><b style="color:${Number(s.debt)>0?"#b42318":"#08733e"}">₦${money(s.debt)}</b></div>
+     </div>
+
+     ${debtBlock}
+   </div>
+   <div class="receipt-foot">
+     <strong>J.I.S Smart Shop</strong><br>
+     Thank you for your patronage • Keep this receipt
+   </div>
+ </div>`;
+}
+function showReceipt(s){
+ document.getElementById("receiptContent").innerHTML=makeReceipt(s);
+ document.getElementById("receiptModal").style.display="flex";
+ if(window.receiptTimer) clearInterval(window.receiptTimer);
+ if(Number(s.debt)>0){
+   window.receiptTimer=setInterval(()=>{
+     const el=document.getElementById("receiptAge_"+s.id);
+     if(el) el.textContent="⏱️ "+debtAgeText(s.date);
+   },1000);
+ }
+}
+function showReceiptById(id){const s=sales.find(x=>x.id===id);if(s)showReceipt(s)}
+function showLatestReceipt(){if(!sales.length){alert("Babu receipt tukuna.");return}showReceipt(sales[sales.length-1])}
+function closeReceipt(){document.getElementById("receiptModal").style.display="none";if(window.receiptTimer)clearInterval(window.receiptTimer)}
+function receiptText(s){return `J.I.S SMART SHOP RECEIPT\nCustomer: ${s.customerName}\nPhone: ${s.phone||"-"}\nDate: ${new Date(s.date).toLocaleString()}\n\n${s.items.map(i=>`${i.name} x${i.quantity} = ₦${money(i.price*i.quantity)}`).join("\n")}\n\nTotal: ₦${money(s.total)}\nPaid: ₦${money(s.paid)}\nDebt: ₦${money(s.debt)}\nThank you!`}
+function shareLatestReceipt(){if(!sales.length){alert("Babu receipt.");return}const text=receiptText(sales[sales.length-1]);if(navigator.share)navigator.share({title:"Shop Receipt",text}).catch(()=>{});else{navigator.clipboard?.writeText(text);alert("Receipt text copied.")}}
+function exportData(){
+ const data={version:"1.8",username:currentUser,products,sales,customers,exportedAt:new Date().toISOString()};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`jis-smart-shop-${currentUser}-backup.json`;a.click();URL.revokeObjectURL(a.href);
+}
+function importData(e){
+ const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.products)||!Array.isArray(d.sales)||!Array.isArray(d.customers))throw 0;if(!confirm("Import zai maye bayanan wannan account. Ci gaba?"))return;products=d.products;sales=d.sales;customers=d.customers;saveData();updateAll();alert("Backup an dawo da shi successfully.")}catch{alert("Backup file ba daidai ba.")}e.target.value=""};r.readAsText(file)
+}
+function changePin(){const old=document.getElementById("oldPin").value,n=document.getElementById("newPin").value;if(old!==pin){alert("Old PIN ba daidai ba.");return}if(!/^\d{4,6}$/.test(n)){alert("New PIN ya zama lambobi 4-6.");return}pin=n;accounts[currentUser]=n;localStorage.setItem("shop_accounts_v12",JSON.stringify(accounts));alert("PIN changed successfully.")}
+function clearAllData(){if(!confirm("Wannan zai goge products, sales da customers na wannan account. Ci gaba?"))return;products=[];sales=[];customers=[];cart=[];saveData();updateAll();renderCart();alert("An goge bayanan wannan account.")}
+function money(n){return Number(n||0).toLocaleString("en-NG")}
+function esc(t){return String(t??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function updateAll(){renderProducts();renderCart();renderCustomers();renderSalesHistory();updateDashboard();updateLocalAccountId()}
+updateAll();
+startDebtClock();
+</script>
+</body>
+</html>
